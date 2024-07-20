@@ -703,7 +703,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             formatted_devices = formatted_devices + f"{name} '{str_friendly_names}' = {str_attributes}\n"
             devices.append({
                 "entity_id": name,
-                "name": attributes.get('friendly_name'),
+                "name": str_friendly_names,
                 "state": state,
                 "attributes": exposed_attributes,
                 "area_name": attributes.get("area_name"),
