@@ -381,6 +381,9 @@ class LocalLLMAgent(AbstractConversationAgent):
 
             _LOGGER.info(f"calling tool: {block}")
 
+            if llm_api.api.id != HOME_LLM_API_ID and "arguments" not in parsed_tool_call:
+                parsed_tool_call["arguments"] = {}
+
             # try to fix certain arguments
             args_dict = parsed_tool_call if llm_api.api.id == HOME_LLM_API_ID else parsed_tool_call["arguments"]
 
