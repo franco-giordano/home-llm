@@ -1,7 +1,7 @@
 """Constants for the Local LLM Conversation integration."""
 import types, os
 
-DOMAIN = "llama_conversation"
+DOMAIN = "fork_llama_conversation"
 HOME_LLM_API_ID = "home-llm-service-api"
 SERVICE_TOOL_NAME = "HassCallService"
 CONF_PROMPT = "prompt"

@@ -25,7 +25,7 @@ service_names_regex = re.compile(r"\b\w+\.\w+\([^)]*\)")
 entity_ids_regex = re.compile(r"\b\w+\.\w+(?=\s'|\s=)")
 
 try:
-    with open("custom_components/llama_conversation/in_context_examples.csv", encoding="utf-8-sig") as f:
+    with open("custom_components/fork_llama_conversation/in_context_examples.csv", encoding="utf-8-sig") as f:
         in_context_examples = list(csv.DictReader(f))
 except:
     in_context_examples = []

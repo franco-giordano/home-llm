@@ -11,8 +11,8 @@ from homeassistant.const import (
 )
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.llama_conversation.config_flow import local_llama_config_option_schema, ConfigFlow
-from custom_components.llama_conversation.const import (
+from custom_components.fork_llama_conversation.config_flow import local_llama_config_option_schema, ConfigFlow
+from custom_components.fork_llama_conversation.const import (
     CONF_CHAT_MODEL,
     CONF_MAX_TOKENS,
     CONF_PROMPT,
