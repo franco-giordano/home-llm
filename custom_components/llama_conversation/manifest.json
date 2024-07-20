@@ -1,6 +1,6 @@
 {
-  "domain": "llama_conversation",
-  "name": "Local LLM Conversation",
+  "domain": "fork_llama_conversation",
+  "name": "[fork] Local LLM Conversation",
   "version": "0.3.3",
   "codeowners": ["@acon96"],
   "config_flow": true,

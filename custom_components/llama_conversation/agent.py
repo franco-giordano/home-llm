@@ -587,8 +587,8 @@ class LocalLLMAgent(AbstractConversationAgent):
         
         raise Exception(f"Unknown tool format {style}")
     
-    def _generate_icl_examples(self, num_examples, entity_names):
-        entity_names = entity_names[:]
+    def _generate_icl_examples(self, num_examples, entities):
+        entity_names = list(entities.keys())
         entity_domains = set([x.split(".")[0] for x in entity_names])
 
         area_registry = ar.async_get(self.hass)
@@ -613,6 +613,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             response = chosen_example["response"]
 
             random_device = [ x for x in entity_names if x.split(".")[0] == chosen_example["type"] ][0]
+            random_device_friendly_name = entities[random_device].get('friendly_name')
             random_area = random.choice(all_areas).name
             random_brightness = round(random.random(), 2)
             random_color = random.choice(list(color.COLORS.keys()))
@@ -625,8 +626,8 @@ class LocalLLMAgent(AbstractConversationAgent):
                 tool_arguments["area"] = random_area
 
             if "<name>" in request:
-                request = request.replace("<name>", random_device)
-                response = response.replace("<name>", random_device)
+                request = request.replace("<name>", random_device_friendly_name)
+                response = response.replace("<name>", random_device_friendly_name)
                 tool_arguments["name"] = random_device
 
             if "<brightness>" in request:
@@ -694,7 +695,12 @@ class LocalLLMAgent(AbstractConversationAgent):
             exposed_attributes = expose_attributes(attributes)
             str_attributes = ";".join([state] + exposed_attributes)
             
-            formatted_devices = formatted_devices + f"{name} '{attributes.get('friendly_name')}' = {str_attributes}\n"
+            friendly_names = [attributes.get('friendly_name')]            
+            if "aliases" in attributes:
+                friendly_names += attributes["aliases"]
+            str_friendly_names = " / ".join(friendly_names)
+
+            formatted_devices = formatted_devices + f"{name} '{str_friendly_names}' = {str_attributes}\n"
             devices.append({
                 "entity_id": name,
                 "name": attributes.get('friendly_name'),
@@ -704,18 +710,6 @@ class LocalLLMAgent(AbstractConversationAgent):
                 "area_id": attributes.get("area_id"),
                 "is_alias": False
             })
-            if "aliases" in attributes:
-                for alias in attributes["aliases"]:
-                    formatted_devices = formatted_devices + f"{name} '{alias}' = {str_attributes}\n"
-                    devices.append({
-                        "entity_id": name,
-                        "name": alias,
-                        "state": state,
-                        "attributes": exposed_attributes,
-                        "area_name": attributes.get("area_name"),
-                        "area_id": attributes.get("area_id"),
-                        "is_alias": True
-                    })
 
         if llm_api:
             if llm_api.api.id == HOME_LLM_API_ID:
@@ -773,7 +767,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         # only pass examples if there are loaded examples + an API was exposed
         if self.in_context_examples and llm_api:
             num_examples = int(self.entry.options.get(CONF_NUM_IN_CONTEXT_EXAMPLES, DEFAULT_NUM_IN_CONTEXT_EXAMPLES))
-            render_variables["response_examples"] = self._generate_icl_examples(num_examples, list(entities_to_expose.keys()))
+            render_variables["response_examples"] = self._generate_icl_examples(num_examples, entities_to_expose)
         
         return template.Template(prompt_template, self.hass).async_render(
             render_variables,

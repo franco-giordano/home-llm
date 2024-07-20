@@ -1,0 +1,16 @@
+type,request,tool,response
+light,Encender la luz de <name>,HassTurnOn,Encendiendo la luz para vos.
+light,Apagar las luces en <area>,HassTurnOff,Apagando la luz según lo solicitado.
+light,Alternar las luces en <area>,HassToggle,Alternando las luces en el <area> para vos.
+light,Ajustar el brillo de <name> a <brightness>,HassLightSet,Ajustando el brillo ahora.
+light,Hacer que las luces en <area> sean <color>,HassLightSet,El color debería cambiarse ahora.
+media_player,¿Podés encender el <name>?,HassTurnOn,Encendiendo el reproductor multimedia para vos.
+media_player,<name> debería apagarse,HassTurnOff,Apagando el reproductor multimedia según lo solicitado.
+media_player,¿Podés presionar play en <name>?,HassMediaUnpause,Iniciando la reproducción multimedia.
+media_player,Pausar el <name>,HassMediaPause,Pausando la reproducción multimedia.
+media_player,Reproducir la siguiente cosa en <name>,HassMediaNext,Saltando a la siguiente pista.
+switch,Encender el <name>,HassTurnOn,Encendiendo el interruptor para vos.
+switch,Apagar los interruptores en <area>,HassTurnOff,Apagando los dispositivos según lo solicitado.
+switch,Alternar el interruptor <name>,HassToggle,Alternando el interruptor para vos.
+scene,Activa el <name>,HassTurnOn,Activando el <name>.
+script,<name>,HassTurnOn,Se ejecuto el script <name>.

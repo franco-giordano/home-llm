@@ -1,5 +1,5 @@
 {
-    "name": "Local LLM Conversation",    
+    "name": "[fork] Local LLM Conversation",    
     "homeassistant": "2024.6.0",
     "content_in_root": false,
     "render_readme": true
