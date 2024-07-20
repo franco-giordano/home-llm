@@ -13,4 +13,3 @@ switch,Encender el <name>,HassTurnOn,Encendiendo el interruptor para vos.
 switch,Apagar los interruptores en <area>,HassTurnOff,Apagando los dispositivos según lo solicitado.
 switch,Alternar el interruptor <name>,HassToggle,Alternando el interruptor para vos.
 scene,Activa el <name>,HassTurnOn,Activando el <name>.
-script,<name>,HassTurnOn,Se ejecuto el script <name>.

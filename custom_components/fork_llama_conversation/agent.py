@@ -362,7 +362,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             else:
                 schema_to_validate = vol.Schema({
                     vol.Required("name"): str,
-                    vol.Required("arguments"): dict,
+                    vol.Optional("arguments"): dict, # make args optional for scripts
                 })
                 
             try:
@@ -615,7 +615,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             random_device = [ x for x in entity_names if x.split(".")[0] == chosen_example["type"] ][0]
             random_device_friendly_name = entities[random_device].get('friendly_name')
             random_area = random.choice(all_areas).name
-            random_brightness = round(random.random(), 2)
+            random_brightness = random.randint(0, 100)
             random_color = random.choice(list(color.COLORS.keys()))
 
             tool_arguments = {}
@@ -698,7 +698,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             friendly_names = [attributes.get('friendly_name')]            
             if "aliases" in attributes:
                 friendly_names += attributes["aliases"]
-            str_friendly_names = " / ".join(friendly_names)
+            str_friendly_names = " | ".join(friendly_names)
 
             formatted_devices = formatted_devices + f"{name} '{str_friendly_names}' = {str_attributes}\n"
             devices.append({
