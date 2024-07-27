@@ -643,14 +643,18 @@ class LocalLLMAgent(AbstractConversationAgent):
                 response = response.replace("<color>", random_color)
                 tool_arguments["color"] = random_color
 
-            examples.append({
+            example = {
                 "request": request,
                 "response": response,
-                "tool": {
-                    "name": chosen_example["tool"],
+            }
+
+            if (tool_name := chosen_example["tool"]) != "ChatExample":
+                example["tool"] = {
+                    "name": tool_name,
                     "arguments": tool_arguments
                 }
-            })
+
+            examples.append(example)
             
         return examples
 

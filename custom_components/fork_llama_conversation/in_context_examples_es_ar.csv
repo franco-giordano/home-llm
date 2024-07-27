@@ -13,3 +13,6 @@ switch,Encender el <name>,HassTurnOn,Encendiendo el interruptor para vos.
 switch,Apagar los interruptores en <area>,HassTurnOff,Apagando los dispositivos según lo solicitado.
 switch,Alternar el interruptor <name>,HassToggle,Alternando el interruptor para vos.
 scene,Activa el <name>,HassTurnOn,Activando el <name>.
+light,Cual es el brillo de la luz del Pasillo?,ChatExample,La luz del Pasillo está en 20%.
+media_player,Qué está sonando en el reproductor?,ChatExample,Ahora suena Twist and Shout de los Beatles.
+weather,Como esta el clima afuera?,ChatExample,Hacen 15 grados centigrados, con un 20% de humedad.
