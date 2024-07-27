@@ -646,6 +646,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             example = {
                 "request": request,
                 "response": response,
+                "tool": None,
             }
 
             if (tool_name := chosen_example["tool"]) != "ChatExample":
