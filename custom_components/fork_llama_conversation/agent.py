@@ -521,6 +521,9 @@ class LocalLLMAgent(AbstractConversationAgent):
                 if tool["name"] == "SpeakToUser":
                     # for now, lets try how this works
                     to_say += tool["arguments"].get("text", "")
+
+            # filter out this hardcoded func
+            tool_calls = [tool for tool in tool_calls if tool["name"] != "SpeakToUser"]
         else:
             to_exec = service_call_pattern.findall(response.strip())
         for block in to_exec:
