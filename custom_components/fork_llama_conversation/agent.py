@@ -231,6 +231,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         remember_conversation = self.entry.options.get(CONF_REMEMBER_CONVERSATION, DEFAULT_REMEMBER_CONVERSATION)
         remember_num_interactions = self.entry.options.get(CONF_REMEMBER_NUM_INTERACTIONS, DEFAULT_REMEMBER_NUM_INTERACTIONS)
         service_call_regex = self.entry.options.get(CONF_SERVICE_CALL_REGEX, DEFAULT_SERVICE_CALL_REGEX)
+        use_chat_api = self.entry.options.get(CONF_REMOTE_USE_CHAT_ENDPOINT, DEFAULT_REMOTE_USE_CHAT_ENDPOINT)
 
         try:
             service_call_pattern = re.compile(service_call_regex)
@@ -308,7 +309,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         # generate a response
         try:
             _LOGGER.debug(conversation)
-            response = await self._async_generate(conversation, tools)
+            response, tool_calls = await self._async_generate(conversation, tools)
             _LOGGER.debug(response)
 
         except Exception as err:
@@ -342,8 +343,14 @@ class LocalLLMAgent(AbstractConversationAgent):
             )
 
         # parse response
+
         to_say = service_call_pattern.sub("", response.strip())
-        for block in service_call_pattern.findall(response.strip()):
+        to_exec = []
+        if use_chat_api:
+            to_exec = tool_calls
+        else:
+            to_exec = service_call_pattern.findall(response.strip())
+        for block in to_exec:
             parsed_tool_call: dict = json.loads(block)
 
             if llm_api.api.id == HOME_LLM_API_ID:
@@ -1406,10 +1413,14 @@ class OllamaAPIAgent(LocalLLMAgent):
         # if response_json["prompt_eval_count"] + max_tokens > context_len:
         #     self._warn_context_size()
 
+        message = response_json.get("message", {})
+        tool_calls = message.get("tool_calls", [])
+        stripped_tool_calls = [x["function"] for x in tool_calls]
+
         if "response" in response_json:
-            return response_json["response"]
+            return response_json["response"], stripped_tool_calls
         else:
-            return response_json["message"]["content"]
+            return message["content"], stripped_tool_calls
     
     async def _async_generate(self, conversation: dict, tools: Optional[Any] = None) -> str:
         context_length = self.entry.options.get(CONF_CONTEXT_LENGTH, DEFAULT_CONTEXT_LENGTH)
@@ -1441,6 +1452,7 @@ class OllamaAPIAgent(LocalLLMAgent):
             request_params["format"] = "json"
 
         if tools:
+            _LOGGER.debug(f"Using tools: {tools}")
             request_params["tools"] = tools
         
         if use_chat_api:
