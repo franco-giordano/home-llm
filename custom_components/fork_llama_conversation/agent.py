@@ -136,20 +136,6 @@ HARD_CODED_TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "SpeakToUser",
-            "description": "Shows a text to the user as a response. Must ALWAYS be used.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "text": {"type": "string", "description": "Text to show the user"},
-                },
-                "required": ["text"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "HassTurnOn",
             "description": "Turns on/opens a device, entity or area",
             "parameters": {
@@ -204,7 +190,7 @@ HARD_CODED_TOOLS = [
                 "properties": {
                     "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
                 },
-                "required": [],
+                "required": ["name"],
             },
         },
     },
@@ -218,7 +204,7 @@ HARD_CODED_TOOLS = [
                 "properties": {
                     "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
                 },
-                "required": [],
+                "required": ["name"],
             },
         },
     },
@@ -232,7 +218,7 @@ HARD_CODED_TOOLS = [
                 "properties": {
                     "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
                 },
-                "required": [],
+                "required": ["name"],
             },
         },
     },
@@ -246,7 +232,7 @@ HARD_CODED_TOOLS = [
                 "properties": {
                     "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
                 },
-                "required": [],
+                "required": ["name"],
             },
         },
     },
@@ -259,9 +245,9 @@ HARD_CODED_TOOLS = [
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
-                    "volume_level": {"type": "integer", "description": ""},
+                    "volume_level": {"type": "integer", "description": "Volume level from 0 to 100"},
                 },
-                "required": ["volume_level"],
+                "required": ["name", "volume_level"],
             },
         },
     },
@@ -276,7 +262,7 @@ HARD_CODED_TOOLS = [
                     "name": {"type": "string", "description": "Full name of a todo list (todo.<id>)"},
                     "item": {"type": "string", "description": "Item that will be added to the list"},
                 },
-                "required": [],
+                "required": ["name", "item"],
             },
         },
     },
@@ -575,7 +561,7 @@ class LocalLLMAgent(AbstractConversationAgent):
 
             # make sure brightness is 0-255 and not a percentage
             if "brightness" in args_dict and 0.0 < args_dict["brightness"] <= 1.0:
-                args_dict["brightness"] = int(args_dict["brightness"] * 255)
+                args_dict["brightness"] = int(args_dict["brightness"] * 100)
 
             # convert string "tuple" to a list for RGB colors
             if "rgb_color" in args_dict and isinstance(args_dict["rgb_color"], str):
@@ -1637,9 +1623,9 @@ class OllamaAPIAgent(LocalLLMAgent):
         if json_mode:
             request_params["format"] = "json"
 
-        if tools:
-            _LOGGER.debug(f"Using tools: {tools}")
-            request_params["tools"] = tools
+        # if tools:
+        #     _LOGGER.debug(f"Using tools: {tools}")
+        #     request_params["tools"] = tools
         
         if use_chat_api:
             endpoint, additional_params = self._chat_completion_params(conversation)
