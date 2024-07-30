@@ -137,11 +137,11 @@ HARD_CODED_TOOLS = [
         "type": "function",
         "function": {
             "name": "HassTurnOn",
-            "description": "Turns on/opens a device, entity or area",
+            "description": "Turns on/opens a device, entity or area. Also used to activate scenes.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string", "description": "Full name of a device or entity (<domain>.<id>)"},
+                    "name": {"type": "string", "description": "Full name of a device, entity or scene (<domain>.<id>)"},
                     "area": {"type": "string", "description": "Name of an area"},
                 },
                 "required": [],
