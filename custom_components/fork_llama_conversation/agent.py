@@ -29,7 +29,6 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_state_change, async_call_later
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import ulid, color
-from homeassistant.helper import llm
 
 import voluptuous_serialize
 
