@@ -514,8 +514,6 @@ class LocalLLMAgent(AbstractConversationAgent):
         to_say = service_call_pattern.sub("", response.strip())
         to_exec = []
         if use_chat_api:
-            to_exec = tool_calls
-
             # parse special hard-coded SpeakToUser function
             for tool in tool_calls:
                 if tool["name"] == "SpeakToUser":
@@ -524,6 +522,8 @@ class LocalLLMAgent(AbstractConversationAgent):
 
             # filter out this hardcoded func
             tool_calls = [tool for tool in tool_calls if tool["name"] != "SpeakToUser"]
+
+            to_exec = tool_calls
         else:
             to_exec = service_call_pattern.findall(response.strip())
         for block in to_exec:
