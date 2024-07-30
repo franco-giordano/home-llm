@@ -420,6 +420,8 @@ class LocalLLMAgent(AbstractConversationAgent):
                     tool_args=args_dict,
                 )
 
+            _LOGGER.info(f"parsed tool: {tool_input}")
+
             try:
                 tool_response = await llm_api.async_call_tool(tool_input)
                 _LOGGER.debug("Tool response: %s", tool_response)
