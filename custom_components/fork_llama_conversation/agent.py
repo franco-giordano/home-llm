@@ -417,7 +417,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             else:
                 tool_input = llm.ToolInput(
                     tool_name=parsed_tool_call["name"],
-                    tool_args=parsed_tool_call["arguments"],
+                    tool_args=args_dict,
                 )
 
             try:
