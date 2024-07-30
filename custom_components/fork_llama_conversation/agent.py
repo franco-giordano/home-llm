@@ -405,6 +405,9 @@ class LocalLLMAgent(AbstractConversationAgent):
             if "rgb_color" in args_dict and isinstance(args_dict["rgb_color"], str):
                 args_dict["rgb_color"] = [ int(x) for x in args_dict["rgb_color"][1:-1].split(",") ]
             
+            # cleanup empty string arguments
+            args_dict = {k: v for k, v in args_dict.items() if v != ''}
+            
             if llm_api.api.id == HOME_LLM_API_ID:
                 to_say = to_say + parsed_tool_call.pop("to_say", "")
                 tool_input = llm.ToolInput(
