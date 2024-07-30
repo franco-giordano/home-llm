@@ -13,7 +13,7 @@ import re
 import threading
 import time
 import voluptuous as vol
-from typing import Literal, Any, Callable
+from typing import Literal, Any, Callable, Optional, Tuple
 
 from homeassistant.components.conversation import ConversationInput, ConversationResult, AbstractConversationAgent
 import homeassistant.components.conversation as ha_conversation
@@ -206,7 +206,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         """Call the backend to generate a response from the conversation. Implemented by sub-classes"""
         raise NotImplementedError()
 
-    async def _async_generate(self, conversation: dict) -> str:
+    async def _async_generate(self, conversation: dict, tools: Optional[Any] = None) -> str:
         """Default implementation is to call _generate() which probably does blocking stuff"""
         return await self.hass.async_add_executor_job(
             self._generate, conversation
@@ -279,9 +279,10 @@ class LocalLLMAgent(AbstractConversationAgent):
             conversation_id = ulid.ulid()
             conversation = []
         
+        tools = None
         if len(conversation) == 0 or refresh_system_prompt:
             try:
-                message = self._generate_system_prompt(raw_prompt, llm_api)
+                message, tools = self._generate_system_prompt(raw_prompt, llm_api)
             except TemplateError as err:
                 _LOGGER.error("Error rendering prompt: %s", err)
                 intent_response = intent.IntentResponse(language=user_input.language)
@@ -307,7 +308,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         # generate a response
         try:
             _LOGGER.debug(conversation)
-            response = await self._async_generate(conversation)
+            response = await self._async_generate(conversation, tools)
             _LOGGER.debug(response)
 
         except Exception as err:
@@ -659,7 +660,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             
         return examples
 
-    def _generate_system_prompt(self, prompt_template: str, llm_api: llm.APIInstance) -> str:
+    def _generate_system_prompt(self, prompt_template: str, llm_api: llm.APIInstance) -> Tuple[str, Any]:
         """Generate the system prompt with current entity states"""
         entities_to_expose, domains = self._async_get_exposed_entities()
 
@@ -780,7 +781,7 @@ class LocalLLMAgent(AbstractConversationAgent):
         return template.Template(prompt_template, self.hass).async_render(
             render_variables,
             parse_result=False,
-        )
+        ), tools
 
 class LlamaCppAgent(LocalLLMAgent):
     model_path: str
@@ -1158,7 +1159,7 @@ class GenericOpenAIAPIAgent(LocalLLMAgent):
         else:
             return choices[0]["text"]
     
-    async def _async_generate(self, conversation: dict) -> str:
+    async def _async_generate(self, conversation: dict, tools: Optional[Any] = None) -> str:
         max_tokens = self.entry.options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS)
         temperature = self.entry.options.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)
         top_p = self.entry.options.get(CONF_TOP_P, DEFAULT_TOP_P)
@@ -1410,7 +1411,7 @@ class OllamaAPIAgent(LocalLLMAgent):
         else:
             return response_json["message"]["content"]
     
-    async def _async_generate(self, conversation: dict) -> str:
+    async def _async_generate(self, conversation: dict, tools: Optional[Any] = None) -> str:
         context_length = self.entry.options.get(CONF_CONTEXT_LENGTH, DEFAULT_CONTEXT_LENGTH)
         max_tokens = self.entry.options.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS)
         temperature = self.entry.options.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)
@@ -1438,6 +1439,9 @@ class OllamaAPIAgent(LocalLLMAgent):
 
         if json_mode:
             request_params["format"] = "json"
+
+        if tools:
+            request_params["tools"] = tools
         
         if use_chat_api:
             endpoint, additional_params = self._chat_completion_params(conversation)
