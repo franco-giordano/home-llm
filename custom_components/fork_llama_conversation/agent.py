@@ -173,8 +173,8 @@ HARD_CODED_TOOLS = [
                 "properties": {
                     "name": {"type": "string", "description": "Full name of light (light.<id>)"},
                     "area": {"type": "string", "description": "Name of an area"},
-                    "color": {"type": "string", "description": "Name of color"},
-                    "brightness": {"type": "integer", "description": "Brightness percentage from 0 to 100"},
+                    "color": {"type": "string", "description": "A human-readable string of a color name, such as 'blue' or 'goldenrod'. All CSS3 color names are supported."},
+                    "brightness": {"type": "integer", "description": "Brightness number from 0 to 100"},
                 },
                 "required": [],
             },
