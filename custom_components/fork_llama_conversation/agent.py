@@ -136,6 +136,20 @@ HARD_CODED_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "SpeakToUser",
+            "description": "Shows a text to the user as a response. Must ALWAYS be used.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": "Text to show the user"},
+                },
+                "required": ["text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "HassTurnOn",
             "description": "Turns on/opens a device, entity or area",
             "parameters": {
@@ -501,6 +515,12 @@ class LocalLLMAgent(AbstractConversationAgent):
         to_exec = []
         if use_chat_api:
             to_exec = tool_calls
+
+            # parse special hard-coded SpeakToUser function
+            for tool in tool_calls:
+                if tool["name"] == "SpeakToUser":
+                    # for now, lets try how this works
+                    to_say += tool["arguments"].get("text", "")
         else:
             to_exec = service_call_pattern.findall(response.strip())
         for block in to_exec:
