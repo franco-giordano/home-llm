@@ -29,6 +29,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_state_change, async_call_later
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import ulid, color
+from homeassistant.helper import llm
 
 import voluptuous_serialize
 
@@ -131,6 +132,159 @@ else:
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+HARD_CODED_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "HassTurnOn",
+            "description": "Turns on/opens a device, entity or area",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a device or entity (<domain>.<id>)"},
+                    "area": {"type": "string", "description": "Name of an area"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassTurnOff",
+            "description": "Turns off/closes a device, entity or area",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a device or entity (<domain>.<id>)"},
+                    "area": {"type": "string", "description": "Name of an area"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassLightSet",
+            "description": "Sets the brightness or color of a light",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of light (light.<id>)"},
+                    "area": {"type": "string", "description": "Name of an area"},
+                    "color": {"type": "string", "description": "Name of color"},
+                    "brightness": {"type": "integer", "description": "Brightness percentage from 0 to 100"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassMediaUnpause",
+            "description": "Resumes a media player",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassMediaPause",
+            "description": "Pauses a media player",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassMediaNext",
+            "description": "Skips a media player to the next item",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassMediaPrevious",
+            "description": "Replays the previous item for a media player",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassSetVolume",
+            "description": "Sets the volume of a media player",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a media player (media_player.<id>)"},
+                    "volume_level": {"type": "integer", "description": ""},
+                },
+                "required": ["volume_level"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "HassListAddItem",
+            "description": "Add item to a todo list",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Full name of a todo list (todo.<id>)"},
+                    "item": {"type": "string", "description": "Item that will be added to the list"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "prender_raidmax",
+            "description": "Accion para prender la computadora / PC / Raidmax",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "abrir_spotify",
+            "description": "Accion para abrir Spotify en la PC / computadora",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+]
+
 
 class LocalLLMAgent(AbstractConversationAgent):
     """Base Local LLM conversation agent."""
@@ -766,10 +920,7 @@ class LocalLLMAgent(AbstractConversationAgent):
                 ]
                 
             else:
-                tools = [
-                    self._format_tool(tool.name, tool.parameters, tool.description)
-                    for tool in llm_api.tools
-                ]
+                tools = self._get_tools(llm_api)
             
             if  self.entry.options.get(CONF_TOOL_FORMAT, DEFAULT_TOOL_FORMAT) == TOOL_FORMAT_MINIMAL:
                 formatted_tools = ", ".join(tools)
@@ -796,6 +947,12 @@ class LocalLLMAgent(AbstractConversationAgent):
             render_variables,
             parse_result=False,
         ), tools
+    
+    def _get_tools(llm_api: llm.APIInstance):
+        # return [self._format_tool(tool.name, tool.parameters, tool.description) for tool in llm_api.tools]
+
+        # override tool descriptions because they are empty for some reason
+        return HARD_CODED_TOOLS
 
 class LlamaCppAgent(LocalLLMAgent):
     model_path: str
