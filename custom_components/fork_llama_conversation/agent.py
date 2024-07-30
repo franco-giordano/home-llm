@@ -947,7 +947,7 @@ class LocalLLMAgent(AbstractConversationAgent):
             parse_result=False,
         ), tools
     
-    def _get_tools(llm_api: llm.APIInstance):
+    def _get_tools(self, llm_api: llm.APIInstance):
         # return [self._format_tool(tool.name, tool.parameters, tool.description) for tool in llm_api.tools]
 
         # override tool descriptions because they are empty for some reason
