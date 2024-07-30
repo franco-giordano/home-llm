@@ -351,7 +351,9 @@ class LocalLLMAgent(AbstractConversationAgent):
         else:
             to_exec = service_call_pattern.findall(response.strip())
         for block in to_exec:
-            parsed_tool_call: dict = json.loads(block)
+            parsed_tool_call: dict = block
+            if isinstance(block, str):
+                parsed_tool_call = json.loads(block)
 
             if llm_api.api.id == HOME_LLM_API_ID:
                 schema_to_validate = vol.Schema({
